@@ -1,0 +1,52 @@
+name: Deploy to Production Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build backend
+        run: bun run build
+
+      - name: Deploy to server
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ vars.SERVER_HOST }}
+          username: ${{ vars.SERVER_USER }}
+          key: ${{ secrets.SERVER_PRIVATE_KEY }}
+          source: "dist,node_modules,package.json,bun.lock"
+          target: ${{ vars.SERVER_PATH }}
+          overwrite: true
+
+      - name: Restart PM2 process
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ vars.SERVER_HOST }}
+          username: ${{ vars.SERVER_USER }}
+          key: ${{ secrets.SERVER_PRIVATE_KEY }}
+          script: |
+            cd ${{ vars.SERVER_PATH }}
+            if pm2 list | grep -q "nestjs-mongodb-graphql"; then
+              pm2 restart nestjs-mongodb-graphql --update-env
+            else
+              pm2 start dist/main.js --name nestjs-mongodb-graphql
+            fi
+            pm2 save
+
