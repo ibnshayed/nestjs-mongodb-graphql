@@ -1,11 +1,11 @@
+import compression from '@fastify/compress';
+import helmet from '@fastify/helmet';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import helmet from '@fastify/helmet';
-import compression from '@fastify/compress';
 import { AppModule } from './app.module';
 
 declare const module: {
