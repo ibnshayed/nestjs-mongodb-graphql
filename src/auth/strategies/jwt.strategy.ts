@@ -1,21 +1,14 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
+import { Types } from 'mongoose';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { User } from '../../user/schema/user.schema';
-import { UserService } from '../../user/user.service';
-import { JwtPayload } from '../interfaces/jwt.interface';
+import { UserRole } from '../../user/schema/user.schema';
+import { JwtAuthUser, JwtPayload } from '../interfaces/jwt.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly userService: UserService,
-  ) {
+  constructor(private readonly configService: ConfigService) {
     const secret = configService.get<string>('ACCESS_TOKEN_SECRET');
     if (!secret) {
       throw new InternalServerErrorException(
@@ -29,13 +22,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload): Promise<User | null> {
-    const user = await this.userService.getUser({
-      _id: payload.sub,
-    });
-    if (!user) {
-      throw new UnauthorizedException('Invalid token');
-    }
-    return user;
+  validate(payload: JwtPayload): JwtAuthUser {
+    return {
+      _id: new Types.ObjectId(payload.sub),
+      role: payload.role ?? UserRole.USER,
+    };
   }
 }

@@ -2,6 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
+import { Types } from 'mongoose';
+import { UserRole } from '../user/schema/user.schema';
 import { UserService } from '../user/user.service';
 import {
   LoginInput,
@@ -24,6 +26,7 @@ export class AuthService {
       {
         sub: input.sub,
         email: input.email,
+        role: input.role,
       },
       {
         secret: this.configService.get<string>('ACCESS_TOKEN_SECRET'),
@@ -32,7 +35,7 @@ export class AuthService {
     );
 
     const refreshToken = this.jwtService.sign(
-      { sub: input.sub, email: input.email },
+      { sub: input.sub, email: input.email, role: input.role },
       {
         secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
         expiresIn: '7d',
@@ -54,8 +57,9 @@ export class AuthService {
 
     return {
       ...this.getTokens({
-        sub: user._id,
+        sub: user._id.toString(),
         email: user.email,
+        role: user.role ?? UserRole.USER,
       }),
       user,
     };
@@ -64,7 +68,11 @@ export class AuthService {
   async signup(input: SignupInput): Promise<LoginResponse> {
     const user = await this.userService.create(input);
     return {
-      ...this.getTokens({ sub: user._id, email: user.email }),
+      ...this.getTokens({
+        sub: user._id.toString(),
+        email: user.email,
+        role: user.role ?? UserRole.USER,
+      }),
       user,
     };
   }
@@ -74,10 +82,16 @@ export class AuthService {
       const payload = this.jwtService.verify<JwtPayload>(input.refreshToken, {
         secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
       });
-      const user = await this.userService.getUser({ _id: payload.sub });
+      const user = await this.userService.getUser({
+        _id: new Types.ObjectId(payload.sub),
+      });
       if (!user) throw new UnauthorizedException('Invalid refresh token');
       return {
-        ...this.getTokens({ sub: user._id, email: user.email }),
+        ...this.getTokens({
+          sub: user._id.toString(),
+          email: user.email,
+          role: user.role ?? UserRole.USER,
+        }),
         user,
       };
     } catch {
