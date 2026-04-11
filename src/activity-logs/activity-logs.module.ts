@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { ActivityLogService } from './activity-logs.service';
-import { ActivityLog, ActivityLogSchema } from './schemas/activity-logs.schema';
+import { Module } from '@nestjs/common'
+import { MongooseModule } from '@nestjs/mongoose'
+import { ActivityLogService } from './activity-logs.service'
+import { ActivityLog, ActivityLogSchema } from './schemas/activity-logs.schema'
 
 @Module({
   imports: [

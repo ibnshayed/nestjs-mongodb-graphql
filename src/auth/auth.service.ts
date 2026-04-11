@@ -1,17 +1,17 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import * as argon2 from 'argon2';
-import { Types } from 'mongoose';
-import { UserRole } from '../user/schema/user.schema';
-import { UserService } from '../user/user.service';
+import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { JwtService } from '@nestjs/jwt'
+import * as argon2 from 'argon2'
+import { Types } from 'mongoose'
+import { UserRole } from '../user/schema/user.schema'
+import { UserService } from '../user/user.service'
 import {
   LoginInput,
   LoginResponse,
   RefreshTokenInput,
   SignupInput,
-} from './dtos/auth.input';
-import { JwtPayload, Tokens } from './interfaces/jwt.interface';
+} from './dtos/auth.input'
+import { JwtPayload, Tokens } from './interfaces/jwt.interface'
 
 @Injectable()
 export class AuthService {
@@ -32,7 +32,7 @@ export class AuthService {
         secret: this.configService.get<string>('ACCESS_TOKEN_SECRET'),
         expiresIn: '1d',
       },
-    );
+    )
 
     const refreshToken = this.jwtService.sign(
       { sub: input.sub, email: input.email, role: input.role },
@@ -40,20 +40,20 @@ export class AuthService {
         secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
         expiresIn: '7d',
       },
-    );
+    )
 
     return {
       accessToken,
       refreshToken,
-    };
+    }
   }
 
   async login(input: LoginInput): Promise<LoginResponse> {
-    const user = await this.userService.getUser({ email: input.email });
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    const user = await this.userService.getUser({ email: input.email })
+    if (!user) throw new UnauthorizedException('Invalid credentials')
 
-    const valid = await argon2.verify(user.password, input.password);
-    if (!valid) throw new UnauthorizedException('Invalid credentials');
+    const valid = await argon2.verify(user.password, input.password)
+    if (!valid) throw new UnauthorizedException('Invalid credentials')
 
     return {
       ...this.getTokens({
@@ -62,11 +62,11 @@ export class AuthService {
         role: user.role ?? UserRole.USER,
       }),
       user,
-    };
+    }
   }
 
   async signup(input: SignupInput): Promise<LoginResponse> {
-    const user = await this.userService.create(input);
+    const user = await this.userService.create(input)
     return {
       ...this.getTokens({
         sub: user._id.toString(),
@@ -74,18 +74,18 @@ export class AuthService {
         role: user.role ?? UserRole.USER,
       }),
       user,
-    };
+    }
   }
 
   async refreshToken(input: RefreshTokenInput): Promise<LoginResponse> {
     try {
       const payload = this.jwtService.verify<JwtPayload>(input.refreshToken, {
         secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
-      });
+      })
       const user = await this.userService.getUser({
         _id: new Types.ObjectId(payload.sub),
-      });
-      if (!user) throw new UnauthorizedException('Invalid refresh token');
+      })
+      if (!user) throw new UnauthorizedException('Invalid refresh token')
       return {
         ...this.getTokens({
           sub: user._id.toString(),
@@ -93,9 +93,9 @@ export class AuthService {
           role: user.role ?? UserRole.USER,
         }),
         user,
-      };
+      }
     } catch {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Invalid refresh token')
     }
   }
 }

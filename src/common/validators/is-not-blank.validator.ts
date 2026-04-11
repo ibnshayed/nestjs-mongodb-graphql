@@ -4,7 +4,7 @@ import {
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-} from 'class-validator';
+} from 'class-validator'
 
 /**
  * Custom validator to check if a string is not blank (not empty and not only whitespace).
@@ -13,11 +13,11 @@ import {
 @ValidatorConstraint({ name: 'isNotBlank', async: false })
 export class IsNotBlankConstraint implements ValidatorConstraintInterface {
   validate(value: unknown): boolean {
-    return typeof value === 'string' && value.trim().length > 0;
+    return typeof value === 'string' && value.trim().length > 0
   }
 
   defaultMessage(args: ValidationArguments): string {
-    return `${args.property} should not be empty or contain only whitespace`;
+    return `${args.property} should not be empty or contain only whitespace`
   }
 }
 
@@ -28,6 +28,6 @@ export function IsNotBlank(validationOptions?: ValidationOptions) {
       propertyName,
       options: validationOptions,
       validator: IsNotBlankConstraint,
-    });
-  };
+    })
+  }
 }

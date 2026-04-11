@@ -1,26 +1,26 @@
-import compression from '@fastify/compress';
-import helmet from '@fastify/helmet';
-import { Logger, ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import compression from '@fastify/compress'
+import helmet from '@fastify/helmet'
+import { Logger, ValidationPipe } from '@nestjs/common'
+import { NestFactory } from '@nestjs/core'
 import {
   FastifyAdapter,
   NestFastifyApplication,
-} from '@nestjs/platform-fastify';
-import { AppModule } from './app.module';
+} from '@nestjs/platform-fastify'
+import { AppModule } from './app.module'
 
 declare const module: {
   hot?: {
-    accept: () => void;
-    dispose: (callback: () => void | Promise<void>) => void;
-  };
-};
+    accept: () => void
+    dispose: (callback: () => void | Promise<void>) => void
+  }
+}
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
-  );
-  const logger = new Logger('Bootstrap', { timestamp: true });
+  )
+  const logger = new Logger('Bootstrap', { timestamp: true })
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -31,10 +31,10 @@ async function bootstrap() {
         enableImplicitConversion: true,
       },
     }),
-  );
-  app.enableCors();
+  )
+  app.enableCors()
 
-  await app.register(compression);
+  await app.register(compression)
 
   await app.register(helmet, {
     crossOriginEmbedderPolicy: false,
@@ -53,23 +53,23 @@ async function bootstrap() {
         frameSrc: [`'self'`, 'sandbox.embed.apollographql.com'],
       },
     },
-  });
+  })
 
-  const port = process.env.PORT ?? 3000;
-  await app.listen(port, '0.0.0.0');
+  const port = process.env.PORT ?? 3000
+  await app.listen(port, '0.0.0.0')
   logger.log(
     '-------------------------------------------',
     `Server is running on port ${port}`,
     `GraphQL playground: http://localhost:${port}/graphql`,
     '-------------------------------------------',
-  );
+  )
 
   if (module.hot) {
-    module.hot.accept();
-    module.hot.dispose(() => app.close());
+    module.hot.accept()
+    module.hot.dispose(() => app.close())
   }
 }
 bootstrap().catch((err) => {
-  Logger.error(err);
-  process.exit(1);
-});
+  Logger.error(err)
+  process.exit(1)
+})

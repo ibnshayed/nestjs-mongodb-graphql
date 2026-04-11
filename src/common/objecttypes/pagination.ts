@@ -1,7 +1,7 @@
 // src/common/paginated-type.ts
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql'
 
-type Constructor<T> = new (...args: any[]) => T;
+type Constructor<T> = new (...args: any[]) => T
 
 /**
  * Factory to create a paginated result GraphQL type
@@ -10,37 +10,37 @@ export function PaginatedType<T>(TClass: Constructor<T>) {
   @ObjectType({ isAbstract: true })
   abstract class PaginatedTypeClass {
     @Field(() => [TClass])
-    docs: T[];
+    docs: T[]
 
     @Field(() => Int)
-    totalDocs: number;
+    totalDocs: number
 
     @Field(() => Int)
-    limit: number;
+    limit: number
 
     @Field(() => Boolean)
-    hasPrevPage: boolean;
+    hasPrevPage: boolean
 
     @Field(() => Boolean)
-    hasNextPage: boolean;
+    hasNextPage: boolean
 
     @Field(() => Int, { nullable: true })
-    page?: number;
+    page?: number
 
     @Field(() => Int)
-    totalPages: number;
+    totalPages: number
 
     @Field(() => Int, { nullable: true })
-    offset?: number;
+    offset?: number
 
     @Field(() => Int, { nullable: true })
-    prevPage?: number | null;
+    prevPage?: number | null
 
     @Field(() => Int, { nullable: true })
-    nextPage?: number | null;
+    nextPage?: number | null
 
     @Field(() => Int)
-    pagingCounter: number;
+    pagingCounter: number
   }
-  return PaginatedTypeClass;
+  return PaginatedTypeClass
 }

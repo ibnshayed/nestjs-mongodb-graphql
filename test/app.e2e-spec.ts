@@ -1,28 +1,28 @@
 import {
   FastifyAdapter,
   NestFastifyApplication,
-} from '@nestjs/platform-fastify';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from './../src/app.module';
+} from '@nestjs/platform-fastify'
+import { Test, TestingModule } from '@nestjs/testing'
+import { AppModule } from './../src/app.module'
 
 describe('AppController (e2e)', () => {
-  let app: NestFastifyApplication;
+  let app: NestFastifyApplication
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    }).compile()
 
     app = moduleFixture.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter(),
-    );
-    await app.init();
-    await app.getHttpAdapter().getInstance().ready();
-  });
+    )
+    await app.init()
+    await app.getHttpAdapter().getInstance().ready()
+  })
 
   afterEach(async () => {
-    await app.close();
-  });
+    await app.close()
+  })
 
   it('/ (GET)', () => {
     return app
@@ -31,8 +31,8 @@ describe('AppController (e2e)', () => {
         url: '/',
       })
       .then((result) => {
-        expect(result.statusCode).toEqual(200);
-        expect(result.payload).toEqual('Hello World!');
-      });
-  });
-});
+        expect(result.statusCode).toEqual(200)
+        expect(result.payload).toEqual('Hello World!')
+      })
+  })
+})

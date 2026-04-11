@@ -5,8 +5,8 @@ import {
   InputType,
   ObjectType,
   registerEnumType,
-} from '@nestjs/graphql';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+} from '@nestjs/graphql'
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import {
   IsEmail,
   IsMongoId,
@@ -16,10 +16,10 @@ import {
   IsString,
   MaxLength,
   MinLength,
-} from 'class-validator';
-import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
+} from 'class-validator'
+import { HydratedDocument, SchemaTypes, Types } from 'mongoose'
 
-export type UserDocument = HydratedDocument<User>;
+export type UserDocument = HydratedDocument<User>
 
 export enum Gender {
   MALE = 'MALE',
@@ -28,7 +28,7 @@ export enum Gender {
 
 registerEnumType(Gender, {
   name: 'Gender',
-});
+})
 
 export enum UserStatus {
   ACTIVE = 'ACTIVE',
@@ -40,7 +40,7 @@ export enum UserStatus {
 
 registerEnumType(UserStatus, {
   name: 'UserStatus',
-});
+})
 
 export enum UserRole {
   SUPER_ADMIN = 'SUPER_ADMIN',
@@ -50,7 +50,7 @@ export enum UserRole {
 
 registerEnumType(UserRole, {
   name: 'UserRole',
-});
+})
 
 @InputType('UserInput')
 @ObjectType()
@@ -62,70 +62,70 @@ export class User {
   @IsString()
   @IsNotEmpty()
   @Field(() => ID)
-  _id: Types.ObjectId;
+  _id: Types.ObjectId
 
   @MaxLength(20)
   @MinLength(2)
   @IsString()
   @IsNotEmpty()
   @Prop({ required: true, minlength: 2, maxlength: 20, trim: true })
-  firstName: string;
+  firstName: string
 
   @MaxLength(20)
   @MinLength(2)
   @IsString()
   @IsNotEmpty()
   @Prop({ required: true, minlength: 2, maxlength: 20, trim: true })
-  lastName: string;
+  lastName: string
 
   @IsEmail()
   @IsString()
   @IsNotEmpty()
   @Prop({ required: true, unique: true, trim: true, lowercase: true })
-  email: string;
+  email: string
 
   @IsString()
   @IsOptional()
   @Prop({ unique: true, sparse: true, trim: true, lowercase: true })
-  username?: string;
+  username?: string
 
   @IsPhoneNumber()
   @IsString()
   @IsOptional()
   @Prop({ unique: true, sparse: true, trim: true })
-  phone?: string;
+  phone?: string
 
   @HideField()
   @Prop({ required: true, minlength: 8, trim: true })
-  password: string;
+  password: string
 
   @IsString()
   @IsNotEmpty()
   @IsOptional()
   @Prop({ type: String, enum: Gender })
-  gender?: Gender;
+  gender?: Gender
 
   @IsString()
   @IsNotEmpty()
   @IsOptional()
   @Prop({ type: String, enum: UserRole, default: UserRole.USER })
-  role?: UserRole;
+  role?: UserRole
 
   @IsOptional()
   @Field(() => ID)
   @Prop({ type: SchemaTypes.ObjectId, ref: 'User' })
-  createdBy?: Types.ObjectId;
+  createdBy?: Types.ObjectId
 
   @IsOptional()
   @Prop()
-  lastActiveAt?: Date;
+  lastActiveAt?: Date
 
   @IsOptional()
   @Prop({ type: String, enum: UserStatus, default: UserStatus.PENDING })
-  status?: UserStatus;
+  status?: UserStatus
 
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: Date
+  updatedAt?: Date
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export const UserSchema = SchemaFactory.createForClass(User)

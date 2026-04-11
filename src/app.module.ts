@@ -1,27 +1,27 @@
-import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { Logger, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD, APP_PIPE } from '@nestjs/core';
-import { GraphQLModule } from '@nestjs/graphql';
-import { MongooseModule } from '@nestjs/mongoose';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { FastifyReply, FastifyRequest } from 'fastify';
-import { GraphQLError } from 'graphql';
-import { Connection } from 'mongoose';
-import * as mongoosePaginateV2 from 'mongoose-paginate-v2';
-import * as mongooseUniqueValidator from 'mongoose-unique-validator';
-import { RequestContextModule } from 'nestjs-request-context';
-import { ActivityLogModule } from './activity-logs/activity-logs.module';
-import { ActivityLogService } from './activity-logs/activity-logs.service';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { GqlAuthGuard } from './common/guards/gql-auth.guard';
-import { GqlThrottlerGuard } from './common/guards/graphq-throttler.guard';
-import { RolesGuard } from './common/guards/roles.guard';
-import { TrimPipe } from './common/pipes/trim.pipe';
-import { UserModule } from './user/user.module';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default'
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
+import { Logger, Module } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { APP_GUARD, APP_PIPE } from '@nestjs/core'
+import { GraphQLModule } from '@nestjs/graphql'
+import { MongooseModule } from '@nestjs/mongoose'
+import { ThrottlerModule } from '@nestjs/throttler'
+import { FastifyReply, FastifyRequest } from 'fastify'
+import { GraphQLError } from 'graphql'
+import { Connection } from 'mongoose'
+import * as mongoosePaginateV2 from 'mongoose-paginate-v2'
+import * as mongooseUniqueValidator from 'mongoose-unique-validator'
+import { RequestContextModule } from 'nestjs-request-context'
+import { ActivityLogModule } from './activity-logs/activity-logs.module'
+import { ActivityLogService } from './activity-logs/activity-logs.service'
+import { AppController } from './app.controller'
+import { AppService } from './app.service'
+import { AuthModule } from './auth/auth.module'
+import { GqlAuthGuard } from './common/guards/gql-auth.guard'
+import { GqlThrottlerGuard } from './common/guards/graphq-throttler.guard'
+import { RolesGuard } from './common/guards/roles.guard'
+import { TrimPipe } from './common/pipes/trim.pipe'
+import { UserModule } from './user/user.module'
 
 @Module({
   imports: [
@@ -35,31 +35,31 @@ import { UserModule } from './user/user.module';
       useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
         onConnectionCreate: (connection: Connection) => {
-          const logger = new Logger('MongoDB', { timestamp: true });
+          const logger = new Logger('MongoDB', { timestamp: true })
           const dbName = configService
             .get<string>('MONGODB_URI')
             ?.split('/')
-            .pop();
+            .pop()
 
           connection.on('connected', () =>
-            logger.log('MongoDB connected to ' + dbName),
-          );
-          connection.on('open', () => logger.log('MongoDB open'));
+            logger.log(`MongoDB connected to ${dbName}`),
+          )
+          connection.on('open', () => logger.log('MongoDB open'))
           connection.on('disconnected', () =>
             logger.log('MongoDB disconnected'),
-          );
-          connection.on('reconnected', () => logger.log('MongoDB reconnected'));
+          )
+          connection.on('reconnected', () => logger.log('MongoDB reconnected'))
           connection.on('disconnecting', () =>
             logger.log('MongoDB disconnecting'),
-          );
+          )
 
-          connection.plugin(mongoosePaginateV2);
+          connection.plugin(mongoosePaginateV2)
           connection.plugin(mongooseUniqueValidator, {
             message: 'Error, expected {PATH} to be unique.',
-          });
-          connection.plugin(ActivityLogService.apply);
+          })
+          connection.plugin(ActivityLogService.apply)
 
-          return connection;
+          return connection
         },
       }),
     }),
@@ -73,11 +73,11 @@ import { UserModule } from './user/user.module';
         req,
         res,
       }: {
-        req: FastifyRequest;
-        res: FastifyReply;
+        req: FastifyRequest
+        res: FastifyReply
       }): { req: FastifyRequest; res: FastifyReply } => ({ req, res }),
       formatError: (error: GraphQLError) => {
-        const { extensions, message, path } = error;
+        const { extensions, message, path } = error
         const formattedError = {
           path,
           error: message,
@@ -95,8 +95,8 @@ import { UserModule } from './user/user.module';
             'statusCode' in extensions.originalError
               ? (extensions.originalError as { statusCode?: number }).statusCode
               : null,
-        };
-        return formattedError;
+        }
+        return formattedError
       },
     }),
     ThrottlerModule.forRoot({

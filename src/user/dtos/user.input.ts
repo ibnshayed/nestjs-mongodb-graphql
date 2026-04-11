@@ -6,7 +6,7 @@ import {
   OmitType,
   PartialType,
   PickType,
-} from '@nestjs/graphql';
+} from '@nestjs/graphql'
 import {
   IsMongoId,
   IsNotEmpty,
@@ -17,10 +17,10 @@ import {
   MaxLength,
   Min,
   MinLength,
-} from 'class-validator';
-import { Types } from 'mongoose';
-import { PaginatedType } from 'src/common/objecttypes/pagination';
-import { User } from '../schema/user.schema';
+} from 'class-validator'
+import { Types } from 'mongoose'
+import { PaginatedType } from 'src/common/objecttypes/pagination'
+import { User } from '../schema/user.schema'
 
 @InputType()
 export class GetUserInput extends PickType(User, ['_id']) {}
@@ -30,15 +30,15 @@ export class PaginateUserInput extends PartialType(
   PickType(User, ['gender', 'status']),
 ) {
   @IsOptional()
-  search?: string;
+  search?: string
 
   @Min(1)
   @IsOptional()
-  page?: number;
+  page?: number
 
   @Max(100)
   @IsOptional()
-  limit?: number;
+  limit?: number
 }
 
 @InputType()
@@ -61,7 +61,7 @@ export class CreateUserInput extends OmitType(User, [
   })
   @IsString()
   @IsNotEmpty()
-  password: string;
+  password: string
 }
 
 @InputType()
@@ -78,7 +78,7 @@ export class UpdateUserInput extends PartialType(
   @IsMongoId()
   @IsNotEmpty()
   @Field(() => ID)
-  _id: Types.ObjectId;
+  _id: Types.ObjectId
 
   @MaxLength(32)
   @MinLength(8)
@@ -92,7 +92,7 @@ export class UpdateUserInput extends PartialType(
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  password?: string;
+  password?: string
 }
 
 @InputType()

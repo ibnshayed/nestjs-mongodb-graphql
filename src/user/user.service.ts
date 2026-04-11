@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import * as argon2 from 'argon2';
-import { PaginateModel, Types } from 'mongoose';
+import { Injectable } from '@nestjs/common'
+import { InjectModel } from '@nestjs/mongoose'
+import * as argon2 from 'argon2'
+import { PaginateModel, Types } from 'mongoose'
 import {
   CreateUserInput,
   PaginatedUser,
   PaginateUserInput,
   UpdateUserInput,
-} from './dtos/user.input';
-import { User, UserDocument } from './schema/user.schema';
+} from './dtos/user.input'
+import { User, UserDocument } from './schema/user.schema'
 @Injectable()
 export class UserService {
   constructor(
@@ -26,27 +26,27 @@ export class UserService {
       ...(user.gender && { gender: user.gender }),
       ...(user.status && { status: user.status }),
       ...(user.role && { role: user.role }),
-    };
+    }
 
-    return query;
+    return query
   }
 
   async create(input: CreateUserInput): Promise<User> {
-    const hashedPassword = await argon2.hash(input.password); // Ideally, you should hash the password here
+    const hashedPassword = await argon2.hash(input.password) // Ideally, you should hash the password here
 
     return this.userModel.create({
       ...input,
       password: hashedPassword,
-    });
+    })
   }
 
   async getUser(input: Partial<User>): Promise<User | null> {
-    const query = this.queryBuilder(input);
-    return this.userModel.findOne(query);
+    const query = this.queryBuilder(input)
+    return this.userModel.findOne(query)
   }
 
   getUsers(input: PaginateUserInput): Promise<PaginatedUser> {
-    const { page, limit, search, ...rest } = input;
+    const { page, limit, search, ...rest } = input
 
     const query = {
       ...(search && {
@@ -59,12 +59,12 @@ export class UserService {
         ],
       }),
       ...this.queryBuilder(rest),
-    };
+    }
 
     return this.userModel.paginate(query, {
       page: page || 1,
       limit: limit || 10,
-    });
+    })
   }
 
   async updateUser(
@@ -72,10 +72,10 @@ export class UserService {
     input: Omit<UpdateUserInput, '_id'>,
   ): Promise<User | null> {
     if (input.password) {
-      input.password = await argon2.hash(input.password); // Hash the password before updating
+      input.password = await argon2.hash(input.password) // Hash the password before updating
     }
 
-    return this.userModel.findByIdAndUpdate(id, input, { new: true });
+    return this.userModel.findByIdAndUpdate(id, input, { new: true })
   }
 
   async softDeleteUser(id: Types.ObjectId): Promise<User | null> {
@@ -83,6 +83,6 @@ export class UserService {
       id,
       { status: 'DELETED' },
       { new: true },
-    );
+    )
   }
 }
